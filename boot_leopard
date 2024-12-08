@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+export QEMU_VM_NAME="Mac OS X Leopard"
+export MAC_VERSION="10.6_10.14"
+export MAC_RAM="2G"
+export MAC_CORES="2"
+#export MAC_DVD="iso/empty.iso"
+export MAC_HD="harddrives/Leopard.qcow2"
+export MAC_GRAPHICS="qxl"
+export MAC_SPICE_PORT="50020"
+
+
+$SCRIPT_DIR/boot_intel_mac
+
+

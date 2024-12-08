@@ -1,0 +1,156 @@
+#!/bin/bash
+
+if [ "$MAC_HD" == "" ];
+then
+    echo "No Mac config loaded detected. First, load one with:"
+    echo "source <config file> or . <config file>."
+    echo ""
+
+    exit 1
+fi
+
+echo "Config for $QEMU_VM_NAME loaded."
+echo ""
+
+
+
+
+# ==========================================================================
+# DO NOT TOUCH ANYTHING BELOW THIS POINT UNLESS YOU KNOW WHAT ARE YOU DOING.
+#
+# You can customice many things exporting the corresponding variables
+# before executing this script. Then, your values will be used instead
+# default ones.
+# ==========================================================================
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+# ------ ADVANCED CONFIG AREA ---------
+if [ "$CPU_OPTS" == "" ];
+then
+    CPU_OPTS="vendor=GenuineIntel,kvm=on,"
+    CPU_OPTS+="+sse3,+sse4.2,+aes,+xsave,+avx,+xsaveopt,+xgetbv1"
+    CPU_OPTS+=",+avx2,+bmi2,+smep,+bmi1,+fma,+movbe,+invtsc"
+fi
+
+if [ "$DISK_CONTROLLER" == "" ];
+then
+    DISK_CONTROLLER="ich9-intel-hda"
+fi
+
+if [ "$BOOT_DRIVE_BUS" == "" ];
+then
+    BOOT_DRIVE_BUS="SATA.1"
+fi
+
+if [ "$CD_DRIVE_BUS" == "" ];
+then
+    CD_DRIVE_BUS="SATA.2"
+fi
+
+if [ "$HD_DRIVE_BUS" == "" ];
+then
+    HD_DRIVE_BUS="SATA.3"
+fi
+
+if [ "$BOOT_IMAGE" == "" ];
+then
+    BOOT_IMAGE="$SCRIPT_DIR/bootloader/OpenCore.img"
+fi
+
+if [ "$BOOTLOADER_DEVICE" == "" ];
+then
+    BOOTLOADER_DEVICE="ide-hd,bus=${BOOT_DRIVE_BUS},drive=Bootloader"
+    BOOTLOADER_DRIVE="if=none,format=raw,media=disk,id=Bootloader"
+    BOOTLOADER_DRIVE+=",file=${BOOT_IMAGE}"
+fi
+
+if [ "$CD_DEVICE" == "" ];
+then
+    CD_DEVICE="ide-cd,bus=${CD_DRIVE_BUS},drive=DVD-RW"
+    CD_DRIVE="if=none,format=raw,readonly=on,media=cdrom,id=DVD-RW"
+    CD_DRIVE+=",file=${MAC_DVD}"
+fi
+
+if [ "$HD_DEVICE" == "" ];
+then
+    HD_DEVICE="ide-hd,bus=${HD_DRIVE_BUS},drive=HardDrive"
+    HD_DRIVE="if=none,format=qcow2,media=disk,id=HardDrive,file=${MAC_HD}"
+fi
+
+# -------------------------------------
+
+
+
+
+OSK="ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
+
+QEMU="qemu-system-x86_64"
+QEMU_OPTS=""
+
+
+if ! [ "$QEMU_VM_NAME" == "" ];
+then
+    QEMU_OPTS+="-name \"${QEMU_VM_NAME}\" "
+fi
+
+QEMU_OPTS+="-enable-kvm "
+QEMU_OPTS+="-m ${MAC_RAM} "
+QEMU_OPTS+="-machine q35,accel=kvm "
+QEMU_OPTS+="-smp 4,cores=${MAC_CORES} "
+QEMU_OPTS+="-cpu Penryn,${CPU_OPTS} "
+QEMU_OPTS+="-device isa-applesmc,osk=\"${OSK}\" "
+QEMU_OPTS+="-smbios type=2 "
+
+if ! [ "$EFI_CODE_PATH" == "" ];
+then
+    QEMU_OPTS+="-drive \"if=pflash,format=raw,readonly=on"
+    QEMU_OPTS+=",file=${EFI_CODE_PATH}\" "
+    
+    QEMU_OPTS+="-drive \"if=pflash,format=raw,readonly=on"
+    QEMU_OPTS+=",file=${EFI_VARS_PATH}\" "
+fi
+
+if ! [ "$MAC_GRAPHICS" == "" ];
+then
+    QEMU_OPTS+="$MAC_GRAPHICS"
+else
+    QEMU_OPTS+="-vga qxl "
+fi
+
+if ! [ "$HEADLESS" == "1" ];
+then
+    QEMU_OPTS+="-display gtk"
+else
+    QEMU_OPTS+="-display none"
+fi
+
+if ! [ "MAC_SPICE_PORT" == "" ];
+then
+    QEMU_OPTS+="-spice port=${MAC_SPICE_PORT},addr=0.0.0.0"
+    QEMU_OPTS+=",disable-ticketing=on "
+fi
+
+QEMU_OPTS+="-device ich9-intel-hda "
+QEMU_OPTS+="-device hda-output "
+QEMU_OPTS+="-device usb "
+QEMU_OPTS+="-device usb-kbd "
+QEMU_OPTS+="-device usb-tablet "
+QEMU_OPTS+="-netdev user,id=net0 "
+QEMU_OPTS+="-device e1000-82545em,netdev=net0,id=net0,mac=52:54:00:c9:18:27 "
+QEMU_OPTS+="-device ich9-ahci,id=SATA "
+
+QEMU_OPTS+="-drive ${BOOTLOADER_DRIVE} "
+QEMU_OPTS+="-device ${BOOTLOADER_DEVICE} "
+
+if ! [ "$CD_DEVICE" == "NONE" ];
+then
+    QEMU_OPTS+="-drive ${CD_DRIVE} "
+    QEMU_OPTS+="-device ${CD_DEVICE} "
+fi
+
+QEMU_OPTS+="-drive ${HD_DRIVE} "
+QEMU_OPTS+="-device ${HD_DEVICE} "
+
+
+$QEMU $QEMU_OPTS
