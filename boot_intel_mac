@@ -76,8 +76,16 @@ fi
 
 if [ "$BOOTLOADER_DEVICE" == "" ];
 then
+    if [[ $BOOT_IMAGE == *.qcow2 ]];
+    then
+        # Boot image format
+        BIF="qcow2"
+    else
+        BIF="raw"
+    fi
+
     BOOTLOADER_DEVICE="ide-hd,bus=${BOOT_DRIVE_BUS},drive=Bootloader"
-    BOOTLOADER_DRIVE="if=none,format=raw,media=disk,id=Bootloader"
+    BOOTLOADER_DRIVE="if=none,format=${BIF},media=disk,id=Bootloader"
     BOOTLOADER_DRIVE+=",file=${BOOT_IMAGE}"
 fi
 
