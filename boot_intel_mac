@@ -33,24 +33,40 @@ then
     CPU_OPTS+=",+avx2,+bmi2,+smep,+bmi1,+fma,+movbe,+invtsc"
 fi
 
+if [ "$AUDIO_DEVICE" == "" ];
+then
+    AUDIO_DEVICE="ich9-intel-hda"
+fi
+
 if [ "$DISK_CONTROLLER" == "" ];
 then
-    DISK_CONTROLLER="ich9-intel-hda"
+    DISK_CONTROLLER="ich9-ahci"
+fi
+
+if [ "$MAC_NETWORK_MAC" == "" ];
+then
+    MAC_NETWORK_MAC="52:54:00:c9:18:27"
 fi
 
 if [ "$BOOT_DRIVE_BUS" == "" ];
 then
-    BOOT_DRIVE_BUS="SATA.1"
+    BOOT_DRIVE_BUS="DISK.1"
 fi
 
 if [ "$CD_DRIVE_BUS" == "" ];
 then
-    CD_DRIVE_BUS="SATA.2"
+    CD_DRIVE_BUS="DISK.2"
 fi
 
 if [ "$HD_DRIVE_BUS" == "" ];
 then
-    HD_DRIVE_BUS="SATA.3"
+    HD_DRIVE_BUS="DISK.3"
+fi
+
+if ! [ "$EFI_CODE_PATH" == "NONE" ] && [ "$EFI_CODE_PATH" == "" ];
+then
+    EFI_CODE_PATH="$SCRIPT_DIR/EFI/OVMF_CODE.fd"
+    EFI_VARS_PATH="$SCRIPT_DIR/EFI/OVMF_VARS.fd"
 fi
 
 if [ "$BOOT_IMAGE" == "" ];
@@ -65,7 +81,7 @@ then
     BOOTLOADER_DRIVE+=",file=${BOOT_IMAGE}"
 fi
 
-if [ "$CD_DEVICE" == "" ];
+if ! [ "$MAC_DVD" == "NONE" ] && [ "$CD_DEVICE" == "" ];
 then
     CD_DEVICE="ide-cd,bus=${CD_DRIVE_BUS},drive=DVD-RW"
     CD_DRIVE="if=none,format=raw,readonly=on,media=cdrom,id=DVD-RW"
@@ -91,7 +107,7 @@ QEMU_OPTS=""
 
 if ! [ "$QEMU_VM_NAME" == "" ];
 then
-    QEMU_OPTS+="-name \"${QEMU_VM_NAME}\" "
+    QEMU_OPTS+="" #-name \"${QEMU_VM_NAME}\" "
 fi
 
 QEMU_OPTS+="-enable-kvm "
@@ -99,30 +115,30 @@ QEMU_OPTS+="-m ${MAC_RAM} "
 QEMU_OPTS+="-machine q35,accel=kvm "
 QEMU_OPTS+="-smp 4,cores=${MAC_CORES} "
 QEMU_OPTS+="-cpu Penryn,${CPU_OPTS} "
-QEMU_OPTS+="-device isa-applesmc,osk=\"${OSK}\" "
+QEMU_OPTS+="-device isa-applesmc,osk=${OSK} "
 QEMU_OPTS+="-smbios type=2 "
 
-if ! [ "$EFI_CODE_PATH" == "" ];
+if ! [ "$EFI_CODE_PATH" == "NONE" ];
 then
-    QEMU_OPTS+="-drive \"if=pflash,format=raw,readonly=on"
-    QEMU_OPTS+=",file=${EFI_CODE_PATH}\" "
+    QEMU_OPTS+="-drive if=pflash,format=raw,readonly=on"
+    QEMU_OPTS+=",file=${EFI_CODE_PATH} "
     
-    QEMU_OPTS+="-drive \"if=pflash,format=raw,readonly=on"
-    QEMU_OPTS+=",file=${EFI_VARS_PATH}\" "
+    QEMU_OPTS+="-drive if=pflash,format=raw"
+    QEMU_OPTS+=",file=${EFI_VARS_PATH} "
 fi
 
 if ! [ "$MAC_GRAPHICS" == "" ];
 then
-    QEMU_OPTS+="$MAC_GRAPHICS"
+    QEMU_OPTS+="$MAC_GRAPHICS "
 else
     QEMU_OPTS+="-vga qxl "
 fi
 
 if ! [ "$HEADLESS" == "1" ];
 then
-    QEMU_OPTS+="-display gtk"
+    QEMU_OPTS+="-display gtk "
 else
-    QEMU_OPTS+="-display none"
+    QEMU_OPTS+="-display none "
 fi
 
 if ! [ "MAC_SPICE_PORT" == "" ];
@@ -131,19 +147,19 @@ then
     QEMU_OPTS+=",disable-ticketing=on "
 fi
 
-QEMU_OPTS+="-device ich9-intel-hda "
+QEMU_OPTS+="-device $AUDIO_DEVICE "
 QEMU_OPTS+="-device hda-output "
-QEMU_OPTS+="-device usb "
+QEMU_OPTS+="-usb "
 QEMU_OPTS+="-device usb-kbd "
 QEMU_OPTS+="-device usb-tablet "
 QEMU_OPTS+="-netdev user,id=net0 "
-QEMU_OPTS+="-device e1000-82545em,netdev=net0,id=net0,mac=52:54:00:c9:18:27 "
-QEMU_OPTS+="-device ich9-ahci,id=SATA "
+QEMU_OPTS+="-device e1000-82545em,netdev=net0,id=net0,mac=$MAC_NETWORK_MAC "
+QEMU_OPTS+="-device $DISK_CONTROLLER,id=DISK "
 
 QEMU_OPTS+="-drive ${BOOTLOADER_DRIVE} "
 QEMU_OPTS+="-device ${BOOTLOADER_DEVICE} "
 
-if ! [ "$CD_DEVICE" == "NONE" ];
+if ! [ "$MAC_DVD" == "NONE" ];
 then
     QEMU_OPTS+="-drive ${CD_DRIVE} "
     QEMU_OPTS+="-device ${CD_DEVICE} "
@@ -152,5 +168,6 @@ fi
 QEMU_OPTS+="-drive ${HD_DRIVE} "
 QEMU_OPTS+="-device ${HD_DEVICE} "
 
+#echo "$QEMU $QEMU_OPTS"
 
 $QEMU $QEMU_OPTS
