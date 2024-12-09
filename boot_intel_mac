@@ -58,9 +58,24 @@ then
     CD_DRIVE_BUS="DISK.2"
 fi
 
-if [ "$HD_DRIVE_BUS" == "" ];
+if [ "$HD1_DRIVE_BUS" == "" ];
 then
-    HD_DRIVE_BUS="DISK.3"
+    HD1_DRIVE_BUS="DISK.3"
+fi
+
+if [ "$HD2_DRIVE_BUS" == "" ];
+then
+    HD2_DRIVE_BUS="DISK.4"
+fi
+
+if [ "$HD3_DRIVE_BUS" == "" ];
+then
+    HD3_DRIVE_BUS="DISK.5"
+fi
+
+if [ "$HD4_DRIVE_BUS" == "" ];
+then
+    HD4_DRIVE_BUS="DISK.6"
 fi
 
 if ! [ "$EFI_CODE_PATH" == "NONE" ] && [ "$EFI_CODE_PATH" == "" ];
@@ -96,10 +111,66 @@ then
     CD_DRIVE+=",file=${MAC_DVD}"
 fi
 
-if [ "$HD_DEVICE" == "" ];
+#if [ "$HD_DEVICE" == "" ];
+#then
+#    HD_DEVICE="ide-hd,bus=${HD_DRIVE_BUS},drive=HardDrive"
+#    HD_DRIVE="if=none,format=qcow2,media=disk,id=HardDrive,file=${MAC_HD}"
+#fi
+
+if ! [ "$MAC_HD" == "" ];
 then
-    HD_DEVICE="ide-hd,bus=${HD_DRIVE_BUS},drive=HardDrive"
-    HD_DRIVE="if=none,format=qcow2,media=disk,id=HardDrive,file=${MAC_HD}"
+    if [[ $MAC_HD == *.qcow2 ]];
+    then
+        # HD image format
+        HIF="qcow2"
+    else
+        HIF="raw"
+    fi
+
+    HD1_DEVICE="ide-hd,bus=${HD1_DRIVE_BUS},drive=HardDrive"
+    HD1_DRIVE="if=none,format=${HIF},media=disk,id=HardDrive,file=${MAC_HD}"
+fi
+
+if ! [ "$MAC_HD_2" == "" ];
+then
+    if [[ $MAC_HD_2 == *.qcow2 ]];
+    then
+        # HD image format
+        HIF="qcow2"
+    else
+        HIF="raw"
+    fi
+
+    HD2_DEVICE="ide-hd,bus=${HD2_DRIVE_BUS},drive=HD2"
+    HD2_DRIVE="if=none,format=${HIF},media=disk,id=HD2,file=${MAC_HD_2}"
+fi
+
+if ! [ "$MAC_HD_3" == "" ];
+then
+    if [[ $MAC_HD_3 == *.qcow2 ]];
+    then
+        # HD image format
+        HIF="qcow2"
+    else
+        HIF="raw"
+    fi
+
+    HD3_DEVICE="ide-hd,bus=${HD3_DRIVE_BUS},drive=HD3"
+    HD3_DRIVE="if=none,format=${HIF},media=disk,id=HD3,file=${MAC_HD_3}"
+fi
+
+if ! [ "$MAC_HD_4" == "" ];
+then
+    if [[ $MAC_HD_4 == *.qcow2 ]];
+    then
+        # HD image format
+        HIF="qcow2"
+    else
+        HIF="raw"
+    fi
+
+    HD4_DEVICE="ide-hd,bus=${HD4_DRIVE_BUS},drive=HD4"
+    HD4_DRIVE="if=none,format=${HIF},media=disk,id=HD4,file=${MAC_HD_4}"
 fi
 
 # -------------------------------------
@@ -173,8 +244,27 @@ then
     QEMU_OPTS+="-device ${CD_DEVICE} "
 fi
 
-QEMU_OPTS+="-drive ${HD_DRIVE} "
-QEMU_OPTS+="-device ${HD_DEVICE} "
+QEMU_OPTS+="-drive ${HD1_DRIVE} "
+QEMU_OPTS+="-device ${HD1_DEVICE} "
+
+if ! [ "$MAC_HD_2" == "" ];
+then
+    QEMU_OPTS+="-drive ${HD2_DRIVE} "
+    QEMU_OPTS+="-device ${HD2_DEVICE} "
+fi
+
+if ! [ "$MAC_HD_3" == "" ];
+then
+    QEMU_OPTS+="-drive ${HD3_DRIVE} "
+    QEMU_OPTS+="-device ${HD3_DEVICE} "
+fi
+
+if ! [ "$MAC_HD_4" == "" ];
+then
+    QEMU_OPTS+="-drive ${HD4_DRIVE} "
+    QEMU_OPTS+="-device ${HD4_DEVICE} "
+fi
+
 
 #echo "$QEMU $QEMU_OPTS"
 

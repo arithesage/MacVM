@@ -1,4 +1,6 @@
+iso/
 _old/
+_ignore/
 *.iso
 *.qcow2
 
