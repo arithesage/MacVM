@@ -25,12 +25,21 @@ echo ""
 
 SCRIPT_DIR=$(realpath $(dirname $0))
 
+
 # ------ ADVANCED CONFIG AREA ---------
-if [ "$CPU_OPTS" == "" ];
+
+if ! [ "$CPU_OPTS" == "" ];
 then
-    CPU_OPTS="vendor=GenuineIntel,kvm=on,"
-    CPU_OPTS+="+sse3,+sse4.2,+aes,+xsave,+avx,+xsaveopt,+xgetbv1"
-    CPU_OPTS+=",+avx2,+bmi2,+smep,+bmi1,+fma,+movbe,+invtsc"
+    CPU_EXTRA_OPTS=$CPU_OPTS
+fi
+
+CPU_OPTS="vendor=GenuineIntel,kvm=on,"
+
+if ! [ "$CPU_EXTRA_OPTS" == "" ];
+then
+    CPU_OPTS+=$CPU_EXTRA_OPTS
+else
+    CPU_OPTS+="+sse3,+sse4.1,+sse4.2"
 fi
 
 if [ "$AUDIO_DEVICE" == "" ];
@@ -110,12 +119,6 @@ then
     CD_DRIVE="if=none,format=raw,readonly=on,media=cdrom,id=DVD-RW"
     CD_DRIVE+=",file=${MAC_DVD}"
 fi
-
-#if [ "$HD_DEVICE" == "" ];
-#then
-#    HD_DEVICE="ide-hd,bus=${HD_DRIVE_BUS},drive=HardDrive"
-#    HD_DRIVE="if=none,format=qcow2,media=disk,id=HardDrive,file=${MAC_HD}"
-#fi
 
 if ! [ "$MAC_HD" == "" ];
 then
