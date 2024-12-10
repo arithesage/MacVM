@@ -13,6 +13,10 @@ echo "Config for $QEMU_VM_NAME loaded."
 echo ""
 
 
+if ! [ "$SSH_CONNECTION" == "" ];
+then
+    MAC_HEADLESS=1
+fi
 
 
 # ==========================================================================
@@ -216,7 +220,7 @@ else
     QEMU_OPTS+="-vga qxl "
 fi
 
-if ! [ "$HEADLESS" == "1" ];
+if ! [ "$MAC_HEADLESS" == "1" ];
 then
     QEMU_OPTS+="-display gtk "
 else
