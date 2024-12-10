@@ -33,7 +33,12 @@ General notes:
 OpenCore notes while testing with OS X Leopard
 ------------------------------------------------
 - If no disk is shown in the bootloader, even while Leopard ISO is loaded,
-  try setting Misc > Security > ScanPolicy to 0 in config.plist
+  try setting Misc > Security > ScanPolicy to 0 in config.plist.
 
 - If boot crashes with "Could not allocate driver module memory" error,
-  try enabling AllowRelocationBlock 
+  try enabling AllowRelocationBlock.
+
+- If you get a AppleIntelCPUPowerManagement Kernel Panic, try enabling
+  Kernel > Emulate > DummyPowerManagement.
+
+
