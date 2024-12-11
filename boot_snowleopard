@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+export QEMU_VM_NAME="Mac OS X Snow Leopard"
+export MAC_VERSION_MAJOR="10"
+export MAC_VERSION_MINOR="5"
+export MAC_RAM="2G"
+export MAC_CORES="2"
+export MAC_DVD="iso/OS_X_SnowLeopard.img"
+export MAC_HD="harddrives/SnowLeopard.qcow2"
+#export MAC_HD_2="harddrives/OCLP.qcow2"
+#export MAC_HD_3="bootloader/OpenCore_QEMU.img"
+#export MAC_GRAPHICS="-vga qxl"
+export MAC_SPICE_PORT="50020"
+
+#export EFI_CODE_PATH="NONE"
+export BOOT_IMAGE="bootloader/OpenCore-amd64_FOR_DEBUGGING.img"
+#export CPU_OPTS="vendor=GenuineIntel,kvm=on,+sse3,+sse4.1,+sse4.2"
+
+$SCRIPT_DIR/boot_intel_mac
+
+

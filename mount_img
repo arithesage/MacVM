@@ -1,0 +1,26 @@
+#!/bin/bash
+
+IMG=$1
+
+RESULT=$(udisksctl loop-setup --file "$IMG")
+
+if ! [ "$?" == "0" ];
+then
+    echo "Failed mapping '$IMG' to loop device!"
+    echo ""
+    exit 1
+fi
+
+
+DEVICE=$(echo $RESULT | cut -d " " -f 5)
+
+udisksctl mount --block-device $DEVICE
+
+if ! [ "$?" == "0" ];
+then
+    echo "Failed mounting '$DEVICE' in /media/$USER!"
+    echo ""
+    exit 1
+fi
+
+

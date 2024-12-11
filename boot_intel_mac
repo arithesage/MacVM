@@ -117,7 +117,8 @@ then
     BOOTLOADER_DRIVE+=",file=${BOOT_IMAGE}"
 fi
 
-if ! [ "$MAC_DVD" == "NONE" ] && [ "$CD_DEVICE" == "" ];
+if ! [ "$MAC_DVD" == "NONE" ] && ! [ "$MAC_DVD" == "" ] \
+  && [ "$CD_DEVICE" == "" ];
 then
     CD_DEVICE="ide-cd,bus=${CD_DRIVE_BUS},drive=DVD-RW"
     CD_DRIVE="if=none,format=raw,readonly=on,media=cdrom,id=DVD-RW"
@@ -245,7 +246,7 @@ QEMU_OPTS+="-device $DISK_CONTROLLER,id=DISK "
 QEMU_OPTS+="-drive ${BOOTLOADER_DRIVE} "
 QEMU_OPTS+="-device ${BOOTLOADER_DEVICE} "
 
-if ! [ "$MAC_DVD" == "NONE" ];
+if ! [ "$MAC_DVD" == "NONE" ] && ! [ "$MAC_DVD" == "" ];
 then
     QEMU_OPTS+="-drive ${CD_DRIVE} "
     QEMU_OPTS+="-device ${CD_DEVICE} "
