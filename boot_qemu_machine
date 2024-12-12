@@ -1,0 +1,110 @@
+#!/bin/bash
+
+function abort
+{
+    REASON=$1
+
+    if ! [ "$REASON" == "" ];
+    then
+        echo "${REASON}"
+    fi
+
+    echo "Aborting."
+    echo ""
+
+    exit 1
+}
+
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+
+
+
+if [ "$MACHINE_ARCH" == "" ];
+then
+    MACHINE_ARCH=$(uname -m)
+
+    echo "No architecture given. Using host's by default."
+fi
+
+QEMU="qemu-system-${MACHINE_ARCH}"
+QEMU_OPTS=""
+
+
+if ! [ "$MACHINE_NAME" == "" ];
+then
+    QEMU_OPTS+="-name ${MACHINE_NAME} "
+fi
+
+
+if ! [ "$MACHINE_TYPE" == "" ];
+then
+    QEMU_OPTS+="-machine q35"
+fi
+
+if [ "$MACHINE_ARCH" == "$(uname -m)"];
+then
+    echo "The machine architecture matchs host's one."
+    echo "Enabling KVM acceleration."
+
+    QEMU_OPTS+=",accel=kvm "
+else
+    QEMU_OPTS+=" "
+fi
+
+
+if ! [ "$MACHINE_BIOS" == "" ];
+then
+    QEMU_OPTS+="-bios ${MACHINE_BIOS} "
+
+elif ! [ "$MACHINE_EFI" == "" ];
+then
+    QEMU_OPTS+="-drive if=pflash,format=raw,readonly=on"
+    QEMU_OPTS+=",file=${MACHINE_EFI} "
+
+    if [ "$MACHINE_EFI_VARS" == "" ];
+    then
+        abort "No MACHINE_EFI_VARS (OVMF_VARS.fd path) given."
+    fi
+
+    QEMU_OPTS+="-drive if=pflash,format=raw"
+    QEMU_OPTS+=",file=${MACHINE_EFI_VARS} "
+
+else
+    echo "No MACHINE_BIOS or MACHINE_EFI provided. Will use default BIOS."
+fi
+
+
+if ! [ "$MACHINE_CPU" == "" ];
+then
+    QEMU_OPTS+="-cpu ${MACHINE_CPU}"
+
+    if ! [ "$MACHINE_CPU_OPTS" == "" ];
+    then
+        QEMU_OPTS+=",${MACHINE_CPU_OPTS} "
+    fi
+
+    if ! [ "$MACHINE_CPU_CORES" = "" ];
+    then
+        QEMU_OPTS+="-smp ${MACHINE_CPU_CORES} "
+    fi
+else
+    echo "No MACHINE_CPU provided. Will use the host's CPU."
+fi
+
+
+if ! [ "$MACHINE_RAM" == "" ];
+then
+    QEMU_OPTS+="-m ${MACHINE_RAM} "
+else
+    QEMU_OPTS+="-m 16M"
+
+    echo "Using 16 MB of RAM by default."
+fi
+
+
+if ! [ "$EXTRA_DEVICES" == "" ];
+then
+    QEMU_OPTS+="${EXTRA_DEVICES} "
+fi
