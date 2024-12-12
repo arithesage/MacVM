@@ -21,32 +21,39 @@ SCRIPT_DIR=$(realpath $(dirname $0))
 
 
 
-if [ "$MACHINE_ARCH" == "" ];
+if [ "$QVM_ARCH" == "" ];
 then
-    MACHINE_ARCH=$(uname -m)
+    QVM_ARCH=$(uname -m)
 
     echo "No architecture given. Using host's by default."
 fi
 
-QEMU="qemu-system-${MACHINE_ARCH}"
+QEMU="qemu-system-${QVM_ARCH}"
 QEMU_OPTS=""
 
 
-if ! [ "$MACHINE_NAME" == "" ];
+if ! [ "$QVM_NAME" == "" ];
 then
-    QEMU_OPTS+="-name ${MACHINE_NAME} "
+    QEMU_OPTS+="-name ${QVM_NAME} "
 fi
 
 
-if ! [ "$MACHINE_TYPE" == "" ];
+if ! [ "$QVM_MACHINE" == "" ];
 then
+    QEMU_OPTS+="-machine ${QVM_MACHINE}"
+else
     QEMU_OPTS+="-machine q35"
+
+    echo "Using a Q35 machine by default."
 fi
 
-if [ "$MACHINE_ARCH" == "$(uname -m)"];
+
+if [ "$QVM_ARCH" == "$(uname -m)" ];
 then
+    echo ""
     echo "The machine architecture matchs host's one."
     echo "Enabling KVM acceleration."
+    echo ""
 
     QEMU_OPTS+=",accel=kvm "
 else
@@ -54,49 +61,49 @@ else
 fi
 
 
-if ! [ "$MACHINE_BIOS" == "" ];
+if ! [ "$QVM_BIOS" == "" ];
 then
-    QEMU_OPTS+="-bios ${MACHINE_BIOS} "
+    QEMU_OPTS+="-bios ${QVM_BIOS} "
 
-elif ! [ "$MACHINE_EFI" == "" ];
+elif ! [ "$QVM_EFI" == "" ];
 then
     QEMU_OPTS+="-drive if=pflash,format=raw,readonly=on"
-    QEMU_OPTS+=",file=${MACHINE_EFI} "
+    QEMU_OPTS+=",file=${QVM_EFI} "
 
-    if [ "$MACHINE_EFI_VARS" == "" ];
+    if [ "$QVM_EFI_VARS" == "" ];
     then
-        abort "No MACHINE_EFI_VARS (OVMF_VARS.fd path) given."
+        abort "No QVM_EFI_VARS (OVMF_VARS.fd path) given."
     fi
 
     QEMU_OPTS+="-drive if=pflash,format=raw"
-    QEMU_OPTS+=",file=${MACHINE_EFI_VARS} "
+    QEMU_OPTS+=",file=${QVM_EFI_VARS} "
 
 else
-    echo "No MACHINE_BIOS or MACHINE_EFI provided. Will use default BIOS."
+    echo "No QVM_BIOS or QVM_EFI provided. Will use default BIOS."
 fi
 
 
-if ! [ "$MACHINE_CPU" == "" ];
+if ! [ "$QVM_CPU" == "" ];
 then
-    QEMU_OPTS+="-cpu ${MACHINE_CPU}"
+    QEMU_OPTS+="-cpu ${QVM_CPU}"
 
-    if ! [ "$MACHINE_CPU_OPTS" == "" ];
+    if ! [ "$QVM_CPU_OPTS" == "" ];
     then
-        QEMU_OPTS+=",${MACHINE_CPU_OPTS} "
+        QEMU_OPTS+=",${QVM_CPU_OPTS} "
     fi
 
-    if ! [ "$MACHINE_CPU_CORES" = "" ];
+    if ! [ "$QVM_CPU_CORES" = "" ];
     then
-        QEMU_OPTS+="-smp ${MACHINE_CPU_CORES} "
+        QEMU_OPTS+="-smp ${QVM_CPU_CORES} "
     fi
 else
-    echo "No MACHINE_CPU provided. Will use the host's CPU."
+    echo "No QVM_CPU provided. Will use the host's CPU."
 fi
 
 
-if ! [ "$MACHINE_RAM" == "" ];
+if ! [ "$QVM_RAM" == "" ];
 then
-    QEMU_OPTS+="-m ${MACHINE_RAM} "
+    QEMU_OPTS+="-m ${QVM_RAM} "
 else
     QEMU_OPTS+="-m 16M"
 
@@ -104,7 +111,144 @@ else
 fi
 
 
-if ! [ "$EXTRA_DEVICES" == "" ];
+if ! [ "$QVM_VGA" == "" ];
 then
-    QEMU_OPTS+="${EXTRA_DEVICES} "
+    QEMU_OPTS+="-vga ${QVM_VGA} "
 fi
+
+
+if ! [ "$QVM_VIDEO_DEVICE" == "" ];
+then
+    QEMU_OPTS+="-device ${QVM_VIDEO_DEVICE} "
+fi
+
+
+if ! [ "$QVM_AUDIO" == "" ];
+then
+    QEMU_OPTS+="-device ${QVM_AUDIO}"
+    
+    if ! [ "$QVM_AUDIO_DEVICE_OPTS" == "" ];
+    then
+        QEMU_OPTS+=",${QVM_AUDIO_DEVICE_OPTS} "
+    else
+        QEMU_OPTS+=" "
+    fi
+fi
+
+
+if ! [ "$QVM_DISPLAY" == "" ];
+then
+    if [ "$QVM_DISPLAY" == "NONE" ];
+    then
+        QEMU_OPTS+="-display none "
+    else
+        QEMU_OPTS+="-display ${QVM_DISPLAY} "
+    fi
+else
+    QEMU_OPTS+="-display gtk "
+    
+    echo "Using GTK for the display Window."
+fi
+
+
+if ! [ "$QVM_SPICE_PORT" == "" ];
+then
+    QEMU_OPTS+="-spice port=${QVM_SPICE_PORT},addr=0.0.0.0"
+    
+    if ! [ "$QVM_SPICE_OPTS" == "" ];
+    then
+        QEMU_OPTS+=",${QVM_SPICE_OPTS} "
+    else
+        QEMU_OPTS+=",disable-ticketing=on "
+    fi
+fi
+
+
+if [ "$QVM_INCLUDE_USB" == "1" ];
+then
+    QEMU_OPTS+="-usb "
+fi
+
+
+if [ "$QVM_INCLUDE_NETWORK" == "1" ];
+then
+    if ! [ "$QVM_NETWORK_TYPE" == "" ];
+    then
+        QEMU_OPTS+="-netdev ${QVM_NETWORK_TYPE},id=net0 "
+    else
+        QEMU_OPTS+="-netdev user,id=net0 "
+
+        echo ""
+        echo "Using user networking by default."
+        echo "VM will be unreachable but it will be able to connect to hosts."
+        echo ""
+    fi
+
+    if ! [ "$QVM_NETWORK_CARD" == "" ];
+    then
+        QEMU_OPTS+="-device ${QVM_NETWORK_CARD}"
+    else
+        QEMU_OPTS+="-device e1000-82545em"
+    fi
+
+    if ! [ "$QVM_NETWORK_OPTS" == "" ];
+    then
+        QEMU_OPTS+=",${QVM_NETWORK_OPTS}"
+    fi
+
+    if ! [ "$QVM_NETWORK_CARD_MAC" == "" ];
+    then
+        QEMU_OPTS+=",mac=${QVM_NETWORK_CARD_MAC}"
+    fi
+
+    QEMU_OPTS+=",netdev=net0,id=net0 "
+fi
+
+
+if ! [ "$QVM_IDE_0_MASTER" == "" ];
+then
+    if [[ $QVM_IDE_0_MASTER == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_IDE_0_MASTER},if=ide,index=0"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+fi
+
+if ! [ "$QVM_IDE_0_SLAVE" == "" ];
+then
+    QEMU_OPTS+=""
+fi
+
+if ! [ "$QVM_IDE_1_MASTER" == "" ];
+then
+    QEMU_OPTS+=""
+fi
+
+if ! [ "$QVM_IDE_1_SLAVE" == "" ];
+then
+    QEMU_OPTS+=""
+fi
+
+
+
+if ! [ "$QVM_EXTRA_DEVICES" == "" ];
+then
+    QEMU_OPTS+="${QVM_EXTRA_DEVICES} "
+fi
+
+
+if ! [ "$QVM_EXTRA_OPTS" == "" ];
+then
+    QEMU_OPTS+="${QVM_EXTRA_OPTS} "
+fi
+
+
+echo ""
+echo "Running ${QEMU} ${QEMU_OPTS} ..."
+echo ""
+
+${QEMU} ${QEMU_OPTS}

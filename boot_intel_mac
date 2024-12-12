@@ -1,3 +1,32 @@
 #!/bin/bash
 
+SCRIPT_DIR=$(realpath $(dirname $0))
 
+
+
+
+OSK="ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
+
+export QVM_ARCH="x86_64"
+export QVM_EFI="EFI/OVMF_CODE.fd"
+export QVM_EFI_VARS="EFI/OVMF_VARS.fd"
+export QVM_CPU="Penryn"
+export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
+export QVM_CPU_CORES="2"
+export QVM_RAM="2G"
+
+export QVM_VGA="qxl"
+export QVM_SPICE_PORT="50020"
+
+export QVM_AUDIO="intel-hda"
+
+export QVM_INCLUDE_USB="1"
+export QVM_INCLUDE_NETWORK="1"
+
+export QVM_EXTRA_DEVICES="-device usb-kbd -device usb-tablet"
+
+export QVM_EXTRA_OPTS="-device isa-applesmc,osk=${OSK} "
+export QVM_EXTRA_OPTS+="-smbios type=2"
+
+
+${SCRIPT_DIR}/boot_qemu_machine
