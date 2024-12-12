@@ -4,5 +4,5 @@ _ignore/
 *.iso
 *.qcow2
 EFI/OVMF_VARS.fd
-
+testing/
 
