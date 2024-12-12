@@ -52,7 +52,7 @@ QEMU_OPTS=""
 
 if ! [ "$QVM_NAME" == "" ];
 then
-    QEMU_OPTS+="-name ${QVM_NAME} "
+    QEMU_OPTS+="-name \"${QVM_NAME}\" "
 fi
 
 
@@ -107,13 +107,16 @@ then
 
     if ! [ "$QVM_CPU_OPTS" == "" ];
     then
-        QEMU_OPTS+=",${QVM_CPU_OPTS} "
+        QEMU_OPTS+=",${QVM_CPU_OPTS}"
     fi
 
     if ! [ "$QVM_CPU_CORES" = "" ];
     then
-        QEMU_OPTS+="-smp ${QVM_CPU_CORES} "
+        QEMU_OPTS+=" -smp ${QVM_CPU_CORES}"
     fi
+
+    QEMU_OPTS+=" "
+
 else
     echo "No QVM_CPU provided. Will use the host's CPU."
 fi
@@ -123,7 +126,7 @@ if ! [ "$QVM_RAM" == "" ];
 then
     QEMU_OPTS+="-m ${QVM_RAM} "
 else
-    QEMU_OPTS+="-m 16M"
+    QEMU_OPTS+="-m 16M "
 
     echo "Using 16 MB of RAM by default."
 fi
@@ -132,6 +135,10 @@ fi
 if ! [ "$QVM_VGA" == "" ];
 then
     QEMU_OPTS+="-vga ${QVM_VGA} "
+else
+    QEMU_OPTS+="-vga std "
+
+    echo "Using standard VGA."
 fi
 
 
@@ -276,6 +283,19 @@ then
 fi
 
 
+if ! [ "$QVM_SATA_0" == "" ] || ! [ "$QVM_SATA_1" == "" ] || \
+   ! [ "$QVM_SATA_2" == "" ] || ! [ "$QVM_SATA_3" == "" ] || \
+   ! [ "$QVM_SATA_4" == "" ] || ! [ "$QVM_SATA_5" == "" ];
+then
+    if ! [ "$QVM_SATA_CONTROLLER" == "" ];
+    then
+        QEMU_OPTS+="$QVM_SATA_CONTROLLER "        
+    else
+        QEMU_OPTS+="-device ich9-ahci,id=sata "
+    fi
+fi
+
+
 if ! [ "$QVM_SATA_0" == "" ];
 then
     if [[ $QVM_SATA_0 == *.qcow2 ]];
@@ -285,8 +305,9 @@ then
         IMAGE_FORMAT="raw"
     fi
 
-    QEMU_OPTS+="-drive file=${QVM_SATA_0},if=sata,index=0"
+    QEMU_OPTS+="-drive file=${QVM_SATA_0},if=none,id=sata0"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata0,bus=sata.0 "
 fi
 
 if ! [ "$QVM_SATA_1" == "" ];
@@ -298,8 +319,9 @@ then
         IMAGE_FORMAT="raw"
     fi
 
-    QEMU_OPTS+="-drive file=${QVM_SATA_1},if=sata,index=1"
+    QEMU_OPTS+="-drive file=${QVM_SATA_1},if=none,id=sata1"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata1,bus=sata.1 "
 fi
 
 if ! [ "$QVM_SATA_2" == "" ];
@@ -311,8 +333,9 @@ then
         IMAGE_FORMAT="raw"
     fi
 
-    QEMU_OPTS+="-drive file=${QVM_SATA_2},if=sata,index=2"
+    QEMU_OPTS+="-drive file=${QVM_SATA_2},if=none,id=sata2"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata2,bus=sata.2 "
 fi
 
 if ! [ "$QVM_SATA_3" == "" ];
@@ -324,14 +347,43 @@ then
         IMAGE_FORMAT="raw"
     fi
 
-    QEMU_OPTS+="-drive file=${QVM_SATA_3},if=sata,index=3"
+    QEMU_OPTS+="-drive file=${QVM_SATA_3},if=none,id=sata3"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata3,bus=sata.3 "
+fi
+
+if ! [ "$QVM_SATA_4" == "" ];
+then
+    if [[ $QVM_SATA_4 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_4},if=none,id=sata4"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata4,bus=sata.4 "
+fi
+
+if ! [ "$QVM_SATA_5" == "" ];
+then
+    if [[ $QVM_SATA_5 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_5},if=none,id=sata5"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+    QEMU_OPTS+="-device ide-hd,drive=sata5,bus=sata.5 "
 fi
 
 
 if ! [ "$QVM_SATA_EXTRA_DRIVES" == "" ];
 then
-    QEMU_OPTS+="${QEMU_SATA_EXTRA_DRIVES"} "
+    QEMU_OPTS+="${QEMU_SATA_EXTRA_DRIVES} "
 fi
 
 

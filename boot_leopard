@@ -2,17 +2,19 @@
 
 SCRIPT_DIR=$(realpath $(dirname $0))
 
-export QEMU_VM_NAME="Mac OS X Leopard"
-export MAC_VERSION_MAJOR="10"
-export MAC_VERSION_MINOR="5"
-export MAC_RAM="2G"
-export MAC_CORES="2"
-export MAC_DVD="NONE"
-export MAC_HD="harddrives/Leopard.qcow2"
-export MAC_SPICE_PORT="50020"
 
-#export BOOT_IMAGE="bootloader/Clover-Leopard.img"
-export BOOT_IMAGE="bootloader/OpenCore-Leopard_DEBUGGING.img"
+
+
+export QVM_NAME="Mac OS X Leopard"
+
+export QVM_CPU="Penryn"
+export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
+export QVM_CPU_CORES="2"
+export QVM_RAM="2G"
+
+export QVM_SATA_0="bootloader/OpenCore-Leopard_DEBUGGING.img"
+export QVM_SATA_1="harddrives/Leopard.qcow2"
+
 
 $SCRIPT_DIR/boot_intel_mac
 
