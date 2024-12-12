@@ -23,6 +23,8 @@ export QVM_AUDIO="intel-hda"
 export QVM_INCLUDE_USB="1"
 export QVM_INCLUDE_NETWORK="1"
 
+#export QVM_IDE_0_MASTER="$HOME/Descargas/TinyCore-current.iso"
+
 export QVM_EXTRA_DEVICES="-device usb-kbd -device usb-tablet"
 
 export QVM_EXTRA_OPTS="-device isa-applesmc,osk=${OSK} "

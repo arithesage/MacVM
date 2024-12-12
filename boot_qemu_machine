@@ -16,6 +16,24 @@ function abort
 }
 
 
+if [ "$1" == "-h" ] || [ "$1" == "--help" ];
+then
+    echo "Launch a QEMU virtual machine."
+    echo ""
+    echo "To configure the VM, you need to set some environment variables."
+    echo "Here are the ones used: "
+    echo "----------------------------------------------------------------"
+
+    echo "----------------------------------------------------------------"
+    echo "You can also add whatever you want with the QVM_EXTRA_OPTS one."
+    echo "Remember to separate each parameter with a space and every"
+    echo "parameter option with a comma." 
+    echo ""
+
+    abort
+fi
+
+
 SCRIPT_DIR=$(realpath $(dirname $0))
 
 
@@ -220,19 +238,101 @@ fi
 
 if ! [ "$QVM_IDE_0_SLAVE" == "" ];
 then
-    QEMU_OPTS+=""
+    if [[ $QVM_IDE_0_SLAVE == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_IDE_0_SLAVE},if=ide,index=1"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
 fi
 
 if ! [ "$QVM_IDE_1_MASTER" == "" ];
 then
-    QEMU_OPTS+=""
+    if [[ $QVM_IDE_1_MASTER == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_IDE_1_MASTER},if=ide,index=2"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
 fi
 
 if ! [ "$QVM_IDE_1_SLAVE" == "" ];
 then
-    QEMU_OPTS+=""
+    if [[ $QVM_IDE_1_SLAVE == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_IDE_1_SLAVE},if=ide,index=3"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
 fi
 
+
+if ! [ "$QVM_SATA_0" == "" ];
+then
+    if [[ $QVM_SATA_0 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_0},if=sata,index=0"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+fi
+
+if ! [ "$QVM_SATA_1" == "" ];
+then
+    if [[ $QVM_SATA_1 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_1},if=sata,index=1"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+fi
+
+if ! [ "$QVM_SATA_2" == "" ];
+then
+    if [[ $QVM_SATA_2 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_2},if=sata,index=2"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+fi
+
+if ! [ "$QVM_SATA_3" == "" ];
+then
+    if [[ $QVM_SATA_3 == *.qcow2 ]];
+    then
+        IMAGE_FORMAT="qcow2"
+    else
+        IMAGE_FORMAT="raw"
+    fi
+
+    QEMU_OPTS+="-drive file=${QVM_SATA_3},if=sata,index=3"
+    QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+fi
+
+
+if ! [ "$QVM_SATA_EXTRA_DRIVES" == "" ];
+then
+    QEMU_OPTS+="${QEMU_SATA_EXTRA_DRIVES"} "
+fi
 
 
 if ! [ "$QVM_EXTRA_DEVICES" == "" ];
