@@ -15,7 +15,7 @@ export MAC_HD="harddrives/SnowLeopard.qcow2"
 export MAC_SPICE_PORT="50020"
 
 #export EFI_CODE_PATH="NONE"
-export BOOT_IMAGE="bootloader/OpenCore-amd64_FOR_DEBUGGING.img"
+export BOOT_IMAGE="bootloader/OpenCore-SnowLeopard_DEBUG.img"
 #export CPU_OPTS="vendor=GenuineIntel,kvm=on,+sse3,+sse4.1,+sse4.2"
 
 $SCRIPT_DIR/boot_intel_mac

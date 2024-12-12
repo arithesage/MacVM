@@ -9,14 +9,10 @@ export MAC_RAM="2G"
 export MAC_CORES="2"
 export MAC_DVD="NONE"
 export MAC_HD="harddrives/Leopard.qcow2"
-#export MAC_HD_2="harddrives/OCLP.qcow2"
-#export MAC_HD_3="bootloader/OpenCore_QEMU.img"
-#export MAC_GRAPHICS="-vga qxl"
 export MAC_SPICE_PORT="50020"
 
-#export EFI_CODE_PATH="NONE"
-export BOOT_IMAGE="bootloader/OpenCore-amd64_FOR_DEBUGGING.img"
-#export CPU_OPTS="vendor=GenuineIntel,kvm=on,+sse3,+sse4.1,+sse4.2"
+#export BOOT_IMAGE="bootloader/Clover-Leopard.img"
+export BOOT_IMAGE="bootloader/OpenCore-Leopard_DEBUGGING.img"
 
 $SCRIPT_DIR/boot_intel_mac
 

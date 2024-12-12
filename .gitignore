@@ -3,4 +3,6 @@ _old/
 _ignore/
 *.iso
 *.qcow2
+EFI/OVMF_VARS.fd
+
 
