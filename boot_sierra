@@ -1,0 +1,25 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+
+
+
+export QVM_NAME="Sierra"
+
+export QVM_CPU="Penryn"
+export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
+export QVM_CPU_CORES="2"
+export QVM_RAM="2G"
+
+export QVM_IDE_0_MASTER="bootloader/testing/OpenCore-Leopard_DEBUGGING.img"
+export QVM_IDE_0_SLAVE="harddrives/Sierra.qcow2"
+export QVM_IDE_1_MASTER="iso/OS_X_Sierra.img"
+
+#export QVM_SATA_0="bootloader/OpenCore-Leopard_DEBUGGING.img"
+#export QVM_SATA_1="harddrives/Leopard.qcow2"
+
+
+$SCRIPT_DIR/boot_intel_mac
+
+
