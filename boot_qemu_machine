@@ -44,6 +44,8 @@ then
     QVM_ARCH=$(uname -m)
 
     echo "No architecture given. Using host's by default."
+else
+    echo "Using ${QVM_ARCH} architecture."
 fi
 
 QEMU="qemu-system-${QVM_ARCH}"
@@ -59,9 +61,10 @@ fi
 if ! [ "$QVM_MACHINE" == "" ];
 then
     QEMU_OPTS+="-machine ${QVM_MACHINE}"
+    echo "Creating a ${QVM_MACHINE} virtual machine."
+
 else
     QEMU_OPTS+="-machine q35"
-
     echo "Using a Q35 machine by default."
 fi
 
@@ -114,14 +117,20 @@ if ! [ "$QVM_CPU" == "" ];
 then
     QEMU_OPTS+="-cpu ${QVM_CPU}"
 
+    echo ""
+    echo "Using ${QVM_CPU}."
+
     if ! [ "$QVM_CPU_OPTS" == "" ];
     then
         QEMU_OPTS+=",${QVM_CPU_OPTS}"
+        echo "CPU options: ${QVM_CPU_OPTS}"
     fi
 
     if ! [ "$QVM_CPU_CORES" = "" ];
     then
         QEMU_OPTS+=" -smp ${QVM_CPU_CORES}"
+        echo "${QVM_CPU_CORES} core/s."
+        echo ""
     fi
 
     QEMU_OPTS+=" "
@@ -134,9 +143,9 @@ fi
 if ! [ "$QVM_RAM" == "" ];
 then
     QEMU_OPTS+="-m ${QVM_RAM} "
+    echo "Using ${QVM_RAM} of RAM."
 else
     QEMU_OPTS+="-m 16M "
-
     echo "Using 16 MB of RAM by default."
 fi
 
@@ -144,9 +153,9 @@ fi
 if ! [ "$QVM_VGA" == "" ];
 then
     QEMU_OPTS+="-vga ${QVM_VGA} "
+    echo "Using ${QVM_VGA} VGA."
 else
     QEMU_OPTS+="-vga std "
-
     echo "Using standard VGA."
 fi
 
@@ -154,16 +163,19 @@ fi
 if ! [ "$QVM_VIDEO_DEVICE" == "" ];
 then
     QEMU_OPTS+="-device ${QVM_VIDEO_DEVICE} "
+    echo "Using ${QVM_VIDEO_DEVICE} video device."
 fi
 
 
 if ! [ "$QVM_AUDIO" == "" ];
 then
     QEMU_OPTS+="-device ${QVM_AUDIO}"
+    echo "Enabled '${QVM_AUDIO}' audio."
     
     if ! [ "$QVM_AUDIO_DEVICE_OPTS" == "" ];
     then
         QEMU_OPTS+=",${QVM_AUDIO_DEVICE_OPTS} "
+        echo "With options: ${QVM_AUDIO_DEVICE_OPTS}"
     else
         QEMU_OPTS+=" "
     fi
@@ -250,6 +262,8 @@ then
 
     QEMU_OPTS+="-drive file=${QVM_IDE_0_MASTER},if=ide,index=0"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+
+    echo "Connected '${QVM_IDE_0_MASTER}' to IDE 0 (Master)"
 fi
 
 if ! [ "$QVM_IDE_0_SLAVE" == "" ];
@@ -263,6 +277,8 @@ then
 
     QEMU_OPTS+="-drive file=${QVM_IDE_0_SLAVE},if=ide,index=1"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+
+    echo "Connected '${QVM_IDE_0_SLAVE}' to IDE 0 (Slave)"
 fi
 
 if ! [ "$QVM_IDE_1_MASTER" == "" ];
@@ -276,6 +292,8 @@ then
 
     QEMU_OPTS+="-drive file=${QVM_IDE_1_MASTER},if=ide,index=2"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+
+    echo "Connected '${QVM_IDE_1_MASTER}' to IDE 1 (Master)"
 fi
 
 if ! [ "$QVM_IDE_1_SLAVE" == "" ];
@@ -289,6 +307,8 @@ then
 
     QEMU_OPTS+="-drive file=${QVM_IDE_1_SLAVE},if=ide,index=3"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
+
+    echo "Connected '${QVM_IDE_1_SLAVE}' to IDE 1 (Slave)"
 fi
 
 
@@ -296,12 +316,14 @@ if ! [ "$QVM_SATA_0" == "" ] || ! [ "$QVM_SATA_1" == "" ] || \
    ! [ "$QVM_SATA_2" == "" ] || ! [ "$QVM_SATA_3" == "" ] || \
    ! [ "$QVM_SATA_4" == "" ] || ! [ "$QVM_SATA_5" == "" ];
 then
-    if ! [ "$QVM_SATA_CONTROLLER" == "" ];
+    if [ "$QVM_SATA_CONTROLLER" == "" ];
     then
-        QEMU_OPTS+="$QVM_SATA_CONTROLLER "        
-    else
-        QEMU_OPTS+="-device ich9-ahci,id=sata "
+        QVM_SATA_CONTROLLER="-device ich9-achi"
     fi
+
+    QEMU+="-device ${QVM_SATA_CONTROLLER},id=sata "
+
+    echo "Enabled SATA controller '${QVM_SATA_CONTROLLER}'"
 fi
 
 
@@ -317,6 +339,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_0},if=none,id=sata0"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata0,bus=sata.0 "
+
+    echo "Connected '${QVM_SATA_0}' to SATA.0"
 fi
 
 if ! [ "$QVM_SATA_1" == "" ];
@@ -331,6 +355,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_1},if=none,id=sata1"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata1,bus=sata.1 "
+
+    echo "Connected '${QVM_SATA_1}' to SATA.1"
 fi
 
 if ! [ "$QVM_SATA_2" == "" ];
@@ -345,6 +371,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_2},if=none,id=sata2"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata2,bus=sata.2 "
+
+    echo "Connected '${QVM_SATA_2}' to SATA.2"
 fi
 
 if ! [ "$QVM_SATA_3" == "" ];
@@ -359,6 +387,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_3},if=none,id=sata3"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata3,bus=sata.3 "
+
+    echo "Connected '${QVM_SATA_3}' to SATA.3"
 fi
 
 if ! [ "$QVM_SATA_4" == "" ];
@@ -373,6 +403,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_4},if=none,id=sata4"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata4,bus=sata.4 "
+
+    echo "Connected '${QVM_SATA_4}' to SATA.4"
 fi
 
 if ! [ "$QVM_SATA_5" == "" ];
@@ -387,6 +419,8 @@ then
     QEMU_OPTS+="-drive file=${QVM_SATA_5},if=none,id=sata5"
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
     QEMU_OPTS+="-device ide-hd,drive=sata5,bus=sata.5 "
+
+    echo "Connected '${QVM_SATA_5}' to SATA.5"
 fi
 
 

@@ -14,8 +14,6 @@ export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
 export QVM_CPU_CORES="2"
 export QVM_RAM="2G"
 
-export QVM_BIOS="DEFAULT"
-
 #export QVM_EFI="EFI/OVMF_CODE.fd"
 #export QVM_EFI_VARS="EFI/OVMF_VARS.fd"
 
