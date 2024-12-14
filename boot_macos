@@ -22,7 +22,7 @@ export QVM_EFI_VARS="/mnt/cosas/VMs/QEMU/OSX-KVM/OVMF_VARS.fd"
 #export QVM_IDE_1_MASTER="iso/OS_X_Sierra.img"
 
 export QVM_SATA_0="/mnt/cosas/VMs/QEMU/OSX-KVM/OpenCore/OpenCore.qcow2"
-export QVM_SATA_1="iso/OS_X_Sierra.img"
+export QVM_SATA_1="iso/OS_X_Lion.img"
 export QVM_SATA_2="harddrives/testing.qcow2"
 
 

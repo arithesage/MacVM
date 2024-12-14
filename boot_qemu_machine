@@ -399,8 +399,11 @@ then
 fi
 
 
-echo ""
-echo "Running ${QEMU} ${QEMU_OPTS} ..."
-echo ""
+if [ "$QVM_SHOW_CMDLINE" == "1" ];
+then
+    echo ""
+    echo "Running ${QEMU} ${QEMU_OPTS} ..."
+    echo ""
+fi
 
 ${QEMU} ${QEMU_OPTS}

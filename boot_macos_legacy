@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# This script is intended to be used as a testing draft
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+
+
+
+export QVM_NAME="OSX"
+
+export QVM_CPU="Penryn"
+export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
+export QVM_CPU_CORES="2"
+export QVM_RAM="2G"
+
+export QVM_EFI="/home/javier/almacen/VMs/QEMU/LegacyOSXKVM/ovmf/OVMF_CODE.fd"
+export QVM_EFI_VARS="/home/javier/almacen/VMs/QEMU/LegacyOSXKVM/ovmf/OVMF_VARS.fd"
+
+#export QVM_IDE_0_MASTER="/home/javier/almacen/VMs/QEMU/macOS-Simple-KVM/ESP.qcow2"
+#export QVM_IDE_0_SLAVE="harddrives/testing.qcow2"
+#export QVM_IDE_1_MASTER="iso/OS_X_Leopard.img"
+
+export QVM_SATA_0="/home/javier/almacen/VMs/QEMU/LegacyOSXKVM/opencore/opencore-MLion.qcow2"
+export QVM_SATA_1="iso/OS_X_Leopard.img"
+export QVM_SATA_2="harddrives/testing.qcow2"
+
+
+$SCRIPT_DIR/boot_intel_mac
+
+
