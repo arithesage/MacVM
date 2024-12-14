@@ -81,7 +81,14 @@ fi
 
 if ! [ "$QVM_BIOS" == "" ];
 then
-    QEMU_OPTS+="-bios ${QVM_BIOS} "
+    if ! [ "$QVM_BIOS" == "DEFAULT" ];
+    then
+        QEMU_OPTS+="-bios ${QVM_BIOS} "
+        echo "Using '${QVM_BIOS}' BIOS."
+
+    else
+        echo "Using default BIOS."
+    fi
 
 elif ! [ "$QVM_EFI" == "" ];
 then
@@ -95,6 +102,8 @@ then
 
     QEMU_OPTS+="-drive if=pflash,format=raw"
     QEMU_OPTS+=",file=${QVM_EFI_VARS} "
+
+    echo "Using UEFI ${QVM_EFI}."
 
 else
     echo "No QVM_BIOS or QVM_EFI provided. Will use default BIOS."
