@@ -1,143 +1,123 @@
 @ECHO OFF
 
-function abort
-{
-    REASON=$1
-
-    if ! [ "$REASON" == "" ];
-    then
-        echo "${REASON}"
-    fi
-
-    echo "Aborting."
-    echo ""
-
-    exit 1
-}
+SET QEMU_PATH=C:\Apps\QEMU
 
 
-if [ "$1" == "-h" ] || [ "$1" == "--help" ];
-then
-    echo "Launch a QEMU virtual machine."
-    echo ""
-    echo "To configure the VM, you need to set some environment variables."
-    echo "Here are the ones used: "
-    echo "----------------------------------------------------------------"
+if "%1" == "-h" or "%1" == "--help" (
+    echo Launch a QEMU virtual machine.
+    echo.
+    echo To configure the VM, you need to set some environment variables.
+    echo Here are the ones used: 
+    echo ----------------------------------------------------------------
 
-    echo "----------------------------------------------------------------"
-    echo "You can also add whatever you want with the QVM_EXTRA_OPTS one."
-    echo "Remember to separate each parameter with a space and every"
-    echo "parameter option with a comma." 
-    echo ""
+    echo ----------------------------------------------------------------
+    echo You can also add whatever you want with the QVM_EXTRA_OPTS one.
+    echo Remember to separate each parameter with a space and every
+    echo parameter option with a comma.
+    echo.
 
-    abort
-fi
+    goto :abort
+)
 
 
-SCRIPT_DIR=$(realpath $(dirname $0))
+SET ROOT=%~dp0
+SET SCRIPT_DIR=%ROOT:~-1%
 
 
 
 
-if [ "$QVM_ARCH" == "" ];
-then
-    QVM_ARCH=$(uname -m)
-
-    echo "No architecture given. Using host's by default."
-else
-    echo "Using ${QVM_ARCH} architecture."
-fi
-
-QEMU="qemu-system-${QVM_ARCH}"
-QEMU_OPTS=""
+SET PATH=%PATH%;%QEMU_PATH%
 
 
-if ! [ "$QVM_NAME" == "" ];
-then
-    QEMU_OPTS+="-name \"${QVM_NAME}\" "
-fi
+if "%QVM_ARCH%" == "" (
+    SET QVM_ARCH=$(uname -m)
+
+    echo No architecture given. Using host's by default.
+
+) else (
+    echo Using ${QVM_ARCH} architecture.
+)
+
+SET QEMU="qemu-system-%QVM_ARCH%"
+SET QEMU_OPTS=""
 
 
-if ! [ "$QVM_MACHINE" == "" ];
-then
-    QEMU_OPTS+="-machine ${QVM_MACHINE}"
-    echo "Creating a ${QVM_MACHINE} virtual machine."
-
-else
-    QEMU_OPTS+="-machine q35"
-    echo "Using a Q35 machine by default."
-fi
+if not "%QVM_NAME%" == "" (
+    SET QEMU_OPTS=%QEMU_OPT% -name "%QVM_NAME%
+)
 
 
-if [ "$QVM_ARCH" == "$(uname -m)" ];
-then
-    echo ""
-    echo "The machine architecture matchs host's one."
-    echo "Enabling KVM acceleration."
-    echo ""
+if "%QVM_MACHINE%" == "" (
+    SET QEMU_OPTS=%QEMU_OPT% -machine %QVM_MACHINE%
+    
+    echo Creating a %QVM_MACHINE% virtual machine.
 
-    QEMU_OPTS+=",accel=kvm "
-else
-    QEMU_OPTS+=" "
-fi
-
-
-if ! [ "$QVM_BIOS" == "" ];
-then
-    if ! [ "$QVM_BIOS" == "DEFAULT" ];
-    then
-        QEMU_OPTS+="-bios ${QVM_BIOS} "
-        echo "Using '${QVM_BIOS}' BIOS."
-
-    else
-        echo "Using default BIOS."
-    fi
-
-elif ! [ "$QVM_EFI" == "" ];
-then
-    QEMU_OPTS+="-drive if=pflash,format=raw,readonly=on"
-    QEMU_OPTS+=",file=${QVM_EFI} "
-
-    if [ "$QVM_EFI_VARS" == "" ];
-    then
-        abort "No QVM_EFI_VARS (OVMF_VARS.fd path) given."
-    fi
-
-    QEMU_OPTS+="-drive if=pflash,format=raw"
-    QEMU_OPTS+=",file=${QVM_EFI_VARS} "
-
-    echo "Using UEFI ${QVM_EFI}."
-
-else
-    echo "No QVM_BIOS or QVM_EFI provided. Will use default BIOS."
-fi
+) else (
+    SET QEMU_OPTS=%QEMU_OPT% -machine q35
+    
+    echo Using a Q35 machine by default.
+)
 
 
-if ! [ "$QVM_CPU" == "" ];
-then
-    QEMU_OPTS+="-cpu ${QVM_CPU}"
+if "%QVM_ARCH%" == "$(uname -m)" (
+    echo.
+    echo The machine architecture matchs host's one.
+    echo Enabling KVM acceleration.
+    echo.
 
-    echo ""
-    echo "Using ${QVM_CPU}."
+    SET QEMU_OPTS=%QEMU_OPT% ,accel=kvm
+)
 
-    if ! [ "$QVM_CPU_OPTS" == "" ];
-    then
-        QEMU_OPTS+=",${QVM_CPU_OPTS}"
-        echo "CPU options: ${QVM_CPU_OPTS}"
-    fi
 
-    if ! [ "$QVM_CPU_CORES" = "" ];
-    then
-        QEMU_OPTS+=" -smp ${QVM_CPU_CORES}"
-        echo "${QVM_CPU_CORES} core/s."
-        echo ""
-    fi
+if not "%QVM_BIOS%" == "" (
+    if not "%QVM_BIOS%" == "DEFAULT" (
+        SET QEMU_OPTS=%QEMU_OPT% -bios %QVM_BIOS%
+        echo Using '%QVM_BIOS%' BIOS.
 
-    QEMU_OPTS+=" "
+    ) else (
+        echo Using default BIOS.
+    )
 
-else
-    echo "No QVM_CPU provided. Will use the host's CPU."
-fi
+) else if not "%QVM_EFI%" == "" (
+    SET QEMU_OPTS=%QEMU_OPT% -drive if=pflash,format=raw,readonly=on
+    SET QEMU_OPTS=%QEMU_OPT% ,file=%QVM_EFI%
+
+    if "%QVM_EFI_VARS%" == "" (
+        call :abort "No QVM_EFI_VARS (OVMF_VARS.fd path) given."
+    )
+
+    SET QEMU_OPTS=%QEMU_OPT% -drive if=pflash,format=raw
+    SET QEMU_OPTS=%QEMU_OPT% ,file=%QVM_EFI_VARS%
+
+    echo Using UEFI %QVM_EFI%.
+
+) else (
+    echo No QVM_BIOS or QVM_EFI provided. Will use default BIOS.
+)
+
+
+if not "%QVM_CPU%" == "" (
+    SET QEMU_OPTS=%QEMU_OPT% -cpu %QVM_CPU%
+
+    echo.
+    echo Using %QVM_CPU%.
+
+    if not "%QVM_CPU_OPTS%" == "" (
+        SET QEMU_OPTS=%QEMU_OPT% ,%QVM_CPU_OPTS%
+        
+        echo CPU options: %QVM_CPU_OPTS%
+    )
+
+    if not "%QVM_CPU_CORES%" = "" (
+        SET QEMU_OPTS=%QEMU_OPT% -smp %QVM_CPU_CORES%
+        
+        echo %QVM_CPU_CORES% core/s.
+        echo.
+    )
+
+) else (
+    echo No QVM_CPU provided. Will use the host's CPU.
+)
 
 
 if ! [ "$QVM_RAM" == "" ];
@@ -425,7 +405,6 @@ fi
 
 
 if not "%QVM_SATA_EXTRA_DRIVES%" == "" (
-then
     SET QEMU_OPTS=%QEMU_OPTS% %QEMU_SATA_EXTRA_DRIVES%
 )
 
@@ -441,9 +420,33 @@ if not "%QVM_EXTRA_OPTS%" == "" (
 
 
 if "%QVM_SHOW_CMDLINE%" == "1" (
-    echo ""
-    echo "Running %QEMU% %QEMU_OPTS% ..."
-    echo ""
+    echo.
+    echo Running %QEMU% %QEMU_OPTS% ...
+    echo.
 )
 
+
+
+
 %QEMU% %QEMU_OPTS%
+
+
+goto :end
+
+
+
+
+:abort
+    SET REASON=%1
+
+    if  "%REASON%" == "" (
+        echo %REASON%
+    )
+
+    echo Aborting.
+    echo.
+
+    exit /b 1
+
+
+:end
