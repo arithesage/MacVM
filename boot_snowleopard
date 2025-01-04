@@ -2,21 +2,23 @@
 
 SCRIPT_DIR=$(realpath $(dirname $0))
 
-export QEMU_VM_NAME="Mac OS X Snow Leopard"
-export MAC_VERSION_MAJOR="10"
-export MAC_VERSION_MINOR="5"
-export MAC_RAM="2G"
-export MAC_CORES="2"
-export MAC_DVD="iso/OS_X_SnowLeopard.img"
-export MAC_HD="harddrives/SnowLeopard.qcow2"
-#export MAC_HD_2="harddrives/OCLP.qcow2"
-#export MAC_HD_3="bootloader/OpenCore_QEMU.img"
-#export MAC_GRAPHICS="-vga qxl"
-export MAC_SPICE_PORT="50020"
 
-#export EFI_CODE_PATH="NONE"
-export BOOT_IMAGE="bootloader/OpenCore-SnowLeopard_DEBUG.img"
-#export CPU_OPTS="vendor=GenuineIntel,kvm=on,+sse3,+sse4.1,+sse4.2"
+
+
+export QVM_NAME="SnowLeopard"
+
+export QVM_CPU="Penryn"
+export QVM_CPU_OPTS="vendor=GenuineIntel,+sse3,+sse4.1,+sse4.2"
+export QVM_CPU_CORES="2"
+export QVM_RAM="2G"
+
+export QVM_EFI="EFI/i386/OVMF_CODE.fd"
+export QVM_EFI_VARS="EFI/i386/OVMF_VARS.fd"
+
+export QVM_IDE_0_MASTER="bootloader/_testing/ESP.qcow2"
+export QVM_IDE_0_SLAVE="harddrives/SnowLeopard.qcow2"
+export QVM_IDE_1_MASTER="iso/OS_X_Leopard.iso"
+
 
 $SCRIPT_DIR/boot_intel_mac
 
