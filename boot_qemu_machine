@@ -126,17 +126,40 @@ then
         echo "CPU options: ${QVM_CPU_OPTS}"
     fi
 
-    if ! [ "$QVM_CPU_CORES" = "" ];
-    then
-        QEMU_OPTS+=" -smp ${QVM_CPU_CORES}"
-        echo "${QVM_CPU_CORES} core/s."
-        echo ""
-    fi
-
     QEMU_OPTS+=" "
 
 else
-    echo "No QVM_CPU provided. Will use the host's CPU."
+    echo -n "No QVM_CPU provided. "
+
+    if ! [ "$QVM_MACHINE" == "" ];
+    then
+        echo "A custom machine was provided. Will use its default CPU."
+    else
+        echo "Will use the host's CPU."
+    fi
+
+    if ! [ "$QVM_CPU_OPTS" == "" ];
+    then
+        QEMU_OPTS+=",${QVM_CPU_OPTS}"
+        echo "CPU options: ${QVM_CPU_OPTS}"
+
+        QEMU_OPTS+=" "
+    fi
+fi
+
+
+if ! [ "$QVM_CPU_CORES" = "" ];
+then
+    if ! [ "$QVM_CPU_SMP" == "" ];
+    then
+        QEMU_OPTS+="-smp ${QVM_CPU_SMP}"
+        echo "Using SMP ${QVM_CPU_SMP}."
+    else
+        QEMU_OPTS+="-smp 1"
+    fi
+
+    QEMU_OPTS+=",cores=${QVM_CPU_CORES} "
+    echo "Using ${QVM_CPU_CORES} core/s."
 fi
 
 
@@ -144,6 +167,7 @@ if ! [ "$QVM_RAM" == "" ];
 then
     QEMU_OPTS+="-m ${QVM_RAM} "
     echo "Using ${QVM_RAM} of RAM."
+
 else
     QEMU_OPTS+="-m 16M "
     echo "Using 16 MB of RAM by default."
@@ -421,6 +445,13 @@ then
     QEMU_OPTS+="-device ide-hd,drive=sata5,bus=sata.5 "
 
     echo "Connected '${QVM_SATA_5}' to SATA.5"
+fi
+
+
+if ! [ "$QVM_BOOT_ORDER" = "" ];
+then
+    QEMU_OPTS+="-boot ${QVM_BOOT_ORDER} "
+    echo "Boot secuence: ${QVM_BOOT_ORDER}."
 fi
 
 
