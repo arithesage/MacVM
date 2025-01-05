@@ -65,7 +65,14 @@ then
 
 else
     QEMU_OPTS+="-machine q35"
-    echo "Using a Q35 machine by default."
+    echo "Using a Q35 machine by default."    
+fi
+
+
+if ! [ "$QVM_MACHINE_OPTS" == "" ];
+then
+    QEMU_OPTS+=",${QVM_MACHINE_OPTS} "
+    echo "Machine options: ${QVM_MACHINE_OPTS}"
 fi
 
 
@@ -79,6 +86,13 @@ then
     QEMU_OPTS+=",accel=kvm "
 else
     QEMU_OPTS+=" "
+fi
+
+
+if ! [ "$QVM_BIOS_PATH" ];
+then
+    QEMU_OPTS+="-L ${QVM_BIOS_PATH} "
+    echo "BIOS path: ${QVM_BIOS_PATH}."
 fi
 
 
@@ -118,7 +132,7 @@ then
     QEMU_OPTS+="-cpu ${QVM_CPU}"
 
     echo ""
-    echo "Using ${QVM_CPU}."
+    echo "Using ${QVM_CPU} CPU."
 
     if ! [ "$QVM_CPU_OPTS" == "" ];
     then
