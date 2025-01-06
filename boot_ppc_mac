@@ -8,22 +8,13 @@ SCRIPT_DIR=$(realpath $(dirname $0))
 export QVM_ARCH="ppc"
 export QVM_MACHINE="mac99"
 
-export QVM_RAM="1G"
-
 export QVM_CPU="G4"
 export QVM_CPU_CORES="1"
-
-export QVM_SPICE_PORT="50020"
 
 export QVM_INCLUDE_USB="1"
 export QVM_INCLUDE_NETWORK="1"
 
 export QVM_EXTRA_DEVICES="-device usb-kbd -device usb-tablet "
-
-export QVM_HDA="harddrives/MacOS_9.qcow2"
-export QVM_CDROM="iso/OS_X_Tiger_PPC.iso"
-
-export QVM_BOOT_ORDER="dc"
 
 
 ${SCRIPT_DIR}/boot_qemu_machine
