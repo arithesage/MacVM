@@ -7,10 +7,8 @@ SCRIPT_DIR=$(realpath $(dirname $0))
 
 export QVM_ARCH="ppc"
 export QVM_MACHINE="mac99"
-export QVM_MACHINE_OPTS="via=pmu"
-export QVM_BIOS_PATH="pc-bios"
 
-export QVM_RAM="2G"
+export QVM_RAM="1G"
 
 export QVM_CPU="G4"
 export QVM_CPU_CORES="1"
@@ -20,12 +18,10 @@ export QVM_SPICE_PORT="50020"
 export QVM_INCLUDE_USB="1"
 export QVM_INCLUDE_NETWORK="1"
 
-export QVM_EXTRA_DEVICES="-device usb-kbd -device usb-tablet"
+export QVM_EXTRA_DEVICES="-device usb-kbd -device usb-tablet "
 
-export QVM_EXTRA_OPTS="-uuid 3159DCE2-A537-47C1-B2C6-FFB44069788C "
-
-export QVM_IDE_0_MASTER="harddrives/MacOS_9.qcow2"
-export QVM_IDE_0_SLAVE="/mnt/cosas/VMs/QEMU/MacVM/iso/OS_X_Tiger_PPC.iso"
+export QVM_HDA="harddrives/MacOS_9.qcow2"
+export QVM_CDROM="iso/OS_X_Tiger_PPC.iso"
 
 export QVM_BOOT_ORDER="dc"
 

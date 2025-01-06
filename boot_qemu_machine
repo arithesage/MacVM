@@ -89,7 +89,7 @@ else
 fi
 
 
-if ! [ "$QVM_BIOS_PATH" ];
+if ! [ "$QVM_BIOS_PATH" = "" ];
 then
     QEMU_OPTS+="-L ${QVM_BIOS_PATH} "
     echo "BIOS path: ${QVM_BIOS_PATH}."
@@ -347,6 +347,37 @@ then
     QEMU_OPTS+=",format=${IMAGE_FORMAT} "
 
     echo "Connected '${QVM_IDE_1_SLAVE}' to IDE 1 (Slave)"
+fi
+
+
+if ! [ "$QVM_HDA" == "" ];
+then
+    QEMU_OPTS+="-hda ${QVM_HDA} "
+    echo "Connected '${QVM_HDA}' as the first Hard drive (IDE 0, Master)."
+fi
+
+if ! [ "$QVM_HDB" == "" ];
+then
+    QEMU_OPTS+="-hdb ${QVM_HDB} "
+    echo "Connected '${QVM_HDB}' as the second Hard drive (IDE 0, Slave)."
+fi
+
+if ! [ "$QVM_HDC" == "" ];
+then
+    QEMU_OPTS+="-hdc ${QVM_HDC} "
+    echo "Connected '${QVM_HDC}' as the third Hard drive (IDE 1, Master)."
+fi
+
+if ! [ "$QVM_HDD" == "" ];
+then
+    QEMU_OPTS+="-hdd ${QVM_HDD} "
+    echo "Connected '${QVM_HDD}' as the fourth Hard drive (IDE 1, Slave)."
+fi
+
+if ! [ "$QVM_CDROM" == "" ];
+then
+    QEMU_OPTS+="-cdrom ${QVM_CDROM} "
+    echo "Connected '${QVM_CDROM}' as CD-ROM drive."
 fi
 
 
