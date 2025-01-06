@@ -1,0 +1,25 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+
+
+
+export QVM_NAME="MacOS9"
+export QVM_RAM="1G"
+export QVM_HDA="harddrives/MacOS_9.2.1.qcow2"
+export QVM_SPICE_PORT="50020"
+
+
+if [ "$1" == "--install" ];
+then
+    export QVM_CDROM="iso/MacOS_9.2.1.iso"
+    export QVM_BOOT_ORDER="d"
+else
+    export QVM_BOOT_ORDER="c"
+fi
+
+
+$SCRIPT_DIR/boot_ppc_mac
+
+
